@@ -263,6 +263,7 @@ impl<'a> WebidlParse<&'a mut backend::ast::ImportNamespace> for webidl::ast::Nam
     ) -> Result<()> {
         match *self {
             webidl::ast::NamespaceMember::Operation(ref operation) => {
+                panic!("{}", operation);
                 operation.webidl_parse(program, first_pass, namespace)
             }
             webidl::ast::NamespaceMember::Attribute(_) => {

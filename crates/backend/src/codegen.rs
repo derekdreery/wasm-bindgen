@@ -597,9 +597,11 @@ impl ToTokens for ast::ImportNamespace {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let vis = &self.vis;
         let name = &self.name;
+        let functions = &self.functions;
         (quote! {
             #[allow(bad_style)]
             #vis mod #name {
+                #(#functions)*
             }
         }).to_tokens(tokens);
     }
