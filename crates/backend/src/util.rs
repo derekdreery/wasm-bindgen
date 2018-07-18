@@ -80,6 +80,7 @@ pub fn ident_ty(ident: Ident) -> syn::Type {
     simple_path_ty(Some(ident))
 }
 
+/// Wrap a function in an import block (`extern {}`)
 pub fn wrap_import_function(function: ast::ImportFunction) -> ast::Import {
     ast::Import {
         module: None,

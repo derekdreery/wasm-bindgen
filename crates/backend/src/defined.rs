@@ -107,7 +107,7 @@ impl ImportedTypes for ast::ImportKind {
             ast::ImportKind::Function(fun) => fun.imported_types(f),
             ast::ImportKind::Type(ty) => ty.imported_types(f),
             ast::ImportKind::Enum(enm) => enm.imported_types(f),
-            ast::ImportKind::Namespace(ns) => ns.imported_types(f),
+            ast::ImportKind::Module(ns) => ns.imported_types(f),
         }
     }
 }
@@ -213,7 +213,7 @@ impl ImportedTypes for ast::ImportType {
     }
 }
 
-impl ImportedTypes for ast::ImportNamespace {
+impl ImportedTypes for ast::ImportModule {
     fn imported_types<F>(&self, f: &mut F)
     where
         F: FnMut(&Ident, ImportedTypeKind),

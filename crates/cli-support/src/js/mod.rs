@@ -1758,7 +1758,7 @@ impl<'a, 'b> SubContext<'a, 'b> {
             }
             shared::ImportKind::Type(_) => {}
             shared::ImportKind::Enum(_) => {}
-            shared::ImportKind::Namespace(_) => {}
+            shared::ImportKind::Module(_) => {}
         }
         Ok(())
     }

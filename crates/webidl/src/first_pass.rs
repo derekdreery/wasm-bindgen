@@ -12,6 +12,7 @@ pub(crate) struct FirstPassRecord<'a> {
     pub(crate) dictionaries: BTreeSet<String>,
     pub(crate) enums: BTreeSet<String>,
     pub(crate) mixins: BTreeMap<String, MixinData<'a>>,
+    pub(crate) namespaces: BTreeSet<String>,
 }
 
 #[derive(Default)]
@@ -43,6 +44,7 @@ impl FirstPass for webidl::ast::Definition {
             Enum(enum_) => enum_.first_pass(record),
             Interface(interface) => interface.first_pass(record),
             Mixin(mixin) => mixin.first_pass(record),
+            Namespace(namespace) => namespace.first_pass(record),
             _ => {
                 // Other definitions aren't currently used in the first pass
                 Ok(())
@@ -102,6 +104,30 @@ impl FirstPass for webidl::ast::Interface {
 impl FirstPass for webidl::ast::NonPartialInterface {
     fn first_pass<'a>(&'a self, record: &mut FirstPassRecord<'a>) -> Result<()> {
         if record.interfaces.insert(self.name.clone()) {
+            warn!("Encountered multiple declarations of {}", self.name);
+        }
+
+        Ok(())
+    }
+}
+
+impl FirstPass for webidl::ast::Namespace {
+    fn first_pass<'a>(&'a self, record: &mut FirstPassRecord<'a>) -> Result<()> {
+        use webidl::ast::Namespace::*;
+
+        match self {
+            NonPartial(namespace) => namespace.first_pass(record),
+            _ => {
+                // Other interfaces aren't currently used in the first pass
+                Ok(())
+            }
+        }
+    }
+}
+
+impl FirstPass for webidl::ast::NonPartialNamespace {
+    fn first_pass<'a>(&'a self, record: &mut FirstPassRecord<'a>) -> Result<()> {
+        if record.namespaces.insert(self.name.clone()) {
             warn!("Encountered multiple declarations of {}", self.name);
         }
 

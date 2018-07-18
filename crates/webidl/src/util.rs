@@ -108,7 +108,7 @@ impl<'a> FirstPassRecord<'a> {
         Some(match ty.kind {
             // `any` becomes `::wasm_bindgen::JsValue`.
             webidl::ast::TypeKind::Any => {
-                simple_path_ty(vec![rust_ident("wasm_bindgen"), rust_ident("JsValue")])
+                leading_colon_path_ty(vec![rust_ident("wasm_bindgen"), rust_ident("JsValue")])
             }
 
             // A reference to a type by name becomes the same thing in the
@@ -274,6 +274,48 @@ impl<'a> FirstPassRecord<'a> {
             kind,
             shim,
         })
+    }
+
+    pub fn create_basic_function(
+        &self,
+        arguments: &[webidl::ast::Argument],
+        name: Option<&String>,
+        return_type: &webidl::ast::ReturnType,
+        catch: bool,
+    ) -> Option<backend::ast::ImportFunction> {
+        let name = match name {
+            None => {
+                warn!("Operations without a name are unsupported");
+                return None;
+            }
+            Some(ref name) => name,
+        };
+
+        let kind = backend::ast::ImportFunctionKind::Normal;
+
+        let ret = match return_type {
+            webidl::ast::ReturnType::Void => None,
+            webidl::ast::ReturnType::NonVoid(ty) => {
+                match self.webidl_ty_to_syn_ty(ty, TypePosition::Return) {
+                    None => {
+                        warn!("Operation's return type is not yet supported: {:?}", ty);
+                        return None;
+                    }
+                    Some(ty) => Some(ty),
+                }
+            }
+        };
+
+        self.create_function(
+            &name,
+            arguments
+                .iter()
+                .map(|arg| (&*arg.name, &*arg.type_, arg.variadic)),
+            ret,
+            kind,
+            false,
+            catch,
+        )
     }
 
     pub fn create_basic_method(
